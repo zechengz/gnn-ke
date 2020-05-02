@@ -14,7 +14,7 @@ Maybe use `pip3` instead of `pip`.
 
 ### Python Version
 
-* >= python3.6
+> Python version >= python3.6
 
 ### Example
 
@@ -22,3 +22,4 @@ Maybe use `pip3` instead of `pip`.
 cd src
 python main.py
 ```
+
