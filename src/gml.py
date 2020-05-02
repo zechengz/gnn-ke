@@ -1,6 +1,7 @@
 import networkx as nx
 
 def write_gml():
+	# generate gml file and use Gephi to get basic information of the graph
 	G = nx.read_gpickle("../data/reference.gpickle")
 	nodes = list(G.nodes(data=False))
 	edges = list(G.edges(data=False))
