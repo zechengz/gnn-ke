@@ -13,7 +13,7 @@ PATH_MAIN = "../../"
 threshold = 70
 
 def text_process():
-	G = nx.read_gpickle(PATH_MAIN + "data/reference.gpickle")
+	G = nx.read_gpickle(PATH_MAIN + "data/reference_clean.gpickle")
 	text = ""
 	n = G.number_of_nodes()
 	for i, node in enumerate(G.nodes(data=True)):
@@ -61,13 +61,13 @@ def text_process():
 	plt.axis("off")
 
 def save_text_txt():
-	G = nx.read_gpickle(PATH_MAIN + "data/reference.gpickle")
+	G = nx.read_gpickle(PATH_MAIN + "data/reference_clean.gpickle")
 	titles = []
 	abstracts = []
 	n = G.number_of_nodes()
 	for i, node in enumerate(G.nodes(data=True)):
-		titles.append(str(node[1]['title']))
-		abstracts.append(str(node[1]['abstract']))
+		titles.append(node[1]['title'])
+		abstracts.append(node[1]['abstract'])
 
 	with open(PATH_MAIN + "data/title.txt", "w") as f:
 		for title in titles:

@@ -7,4 +7,5 @@ from utils import *
 if __name__ == "__main__":
 	# load_clean_metadata()
 	# construct_edge_list()
-	construct_nx_graph()
+	# construct_nx_graph()
+	clean_gpickle()

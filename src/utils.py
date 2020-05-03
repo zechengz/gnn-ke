@@ -110,3 +110,13 @@ def construct_nx_graph():
 		G.add_edge(head_id, tail_id, edge_type="reference")
 
 	nx.write_gpickle(G, "../data/reference.gpickle")
+
+def clean_gpickle():
+	G = nx.read_gpickle("../data/reference.gpickle")
+	H = G.copy()
+	for node in G.nodes(data=True):
+		if type(node[1]['abstract']) == float:
+			print(node)
+			H.remove_node(node[0])
+	
+	nx.write_gpickle(H, "../data/reference_clean.gpickle")
