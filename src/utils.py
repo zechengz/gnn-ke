@@ -1,10 +1,14 @@
+import re
 import json
 import numpy as np
 import networkx as nx
 import pandas as pd
+import torch
 
 from os import listdir
 from os.path import isfile, join
+
+from nltk.corpus import stopwords
 
 def load_clean_metadata():
 	df = pd.read_csv("../data/metadata.csv")
@@ -120,3 +124,99 @@ def clean_gpickle():
 			H.remove_node(node[0])
 	
 	nx.write_gpickle(H, "../data/reference_clean.gpickle")
+
+def transform_nx():
+	G = nx.read_gpickle("../data/reference_clean.gpickle")
+	keys = list(G.nodes)
+	vals = list(range(G.number_of_nodes()))
+	mapping = dict(zip(keys, vals))
+	G = nx.relabel_nodes(G, mapping)
+	H = G.copy()
+	for node in G.nodes(data=True):
+		text = node[1]['abstract']
+		text = text.lower()
+		text = text.strip()
+		text = text.replace("\n", "")
+		text = text.replace("\r", "")
+		text = text.replace("\t", "")
+		text = re.sub(r'[^\w\s]','',text)
+		text = text.strip()
+		text = text.split(" ")
+		if 'abstract' in text[0] or 'background' in text[0]:
+			text = text[1:len(text)]
+		if len(text) <= 2:
+			H.remove_node(node[0])
+
+	keys = list(H.nodes)
+	vals = list(range(H.number_of_nodes()))
+	mapping = dict(zip(keys, vals))
+	H = nx.relabel_nodes(H, mapping)
+
+	for node in H.nodes(data=True):
+		text = node[1]['abstract']
+		text = text.lower()
+		text = text.strip()
+		text = text.replace("\n", "")
+		text = text.replace("\r", "")
+		text = text.replace("\t", "")
+		text = re.sub(r'[^\w\s]','',text)
+		text = text.strip()
+		text = text.split(" ")
+		if 'abstract' in text[0] or 'background' in text[0]:
+			text = text[1:len(text)]
+		node[1]['abstract'] = text
+
+	unique_word_dict = {}
+	threshold = 200
+	sw = set(stopwords.words('english'))
+	for node in H.nodes(data=True):
+		abstract = node[1]['abstract']
+		for word in abstract:
+			if word not in sw:
+				if word in unique_word_dict:
+					unique_word_dict[word] += 1
+				else:
+					unique_word_dict[word] = 1
+	unique_word_list = [k for k, v in unique_word_dict.items() if v >= threshold]
+	sorted_unique_word = sorted(unique_word_list)
+	mapping = list(zip(range(len(sorted_unique_word)), sorted_unique_word))
+	mapping = dict((v, k) for k, v in mapping)
+	
+	res = H.__class__()
+	res.add_nodes_from(H)
+	res.add_edges_from(H.edges)
+	feature_dict = {}
+
+	feature_dim = len(unique_word_list)
+	print("Number of unique words:", feature_dim)
+	count_zero = 0
+	for node in H.nodes(data=True):
+		feature = torch.zeros([feature_dim, ], dtype=torch.float32)
+		abstract = node[1]['abstract']
+		for word in abstract:
+			if word not in sw and word in mapping:
+				pos = mapping[word]
+				feature[pos] = 1
+		node[1]['node_feature'] = feature
+		feature_dict[node[0]] = {'node_feature': feature}
+		if feature.sum() == 0:
+			count_zero += 1
+		# print(feature.sum())
+	nx.set_node_attributes(res, feature_dict)
+	
+	features = nx.get_node_attributes(res,'node_feature')
+	features_check = nx.get_node_attributes(H,'node_feature')
+	assert len(features) == len(features_check)
+	for node in features:
+		# print(node, features[node])
+		assert torch.all(features[node] == features_check[node]).item() == True
+
+	print("Number of nodes:", H.number_of_nodes())
+	print("Number of edges:", H.number_of_edges())
+	print("Number of zero features:", count_zero)
+	assert H.number_of_nodes() == res.number_of_nodes()
+	assert H.number_of_edges() == res.number_of_edges()
+
+	for node in res.nodes(data=True):
+		print(node)
+	nx.write_gpickle(res, "../data/reference_tensor.gpickle")

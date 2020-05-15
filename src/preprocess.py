@@ -8,4 +8,5 @@ if __name__ == "__main__":
 	# load_clean_metadata()
 	# construct_edge_list()
 	# construct_nx_graph()
-	clean_gpickle()
+	# clean_gpickle()
+	transform_nx()
