@@ -80,19 +80,21 @@ def train(model, dataloaders, optimizer, args, scheduler=None):
         if scheduler is not None:
             scheduler.step()
 
-        log = 'Epoch: {:03d}, Loss: {:.8f}, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
+        log1 = 'ROC-AUC Epoch: {:03d}, Loss: {:.8f}, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
+        log2 = 'Accuracy Epoch: {:03d}, Loss: {:.8f}, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
         rocs, _, accs = test(model, dataloaders, args)
 
-        print(log.format(epoch, loss.item(), rocs['train'], rocs['val'], rocs['test']))
-        print(log.format(epoch, loss.item(), accs['train'], accs['val'], accs['test']))
+        print(log1.format(epoch, loss.item(), rocs['train'], rocs['val'], rocs['test']))
+        print(log2.format(epoch, loss.item(), accs['train'], accs['val'], accs['test']))
         if val_max < accs['val']:
             val_max = accs['val']
             best_model = copy.deepcopy(model)
 
-    log = 'Best, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
+    log1 = 'Best ROC-AUC, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
+    log2 = 'Best accuracy, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
     rocs, _, accs = test(best_model, dataloaders, args)
-    print(log.format(rocs['train'], rocs['val'], rocs['test']))
-    print(log.format(accs['train'], accs['val'], accs['test']))
+    print(log1.format(rocs['train'], rocs['val'], rocs['test']))
+    print(log2.format(accs['train'], accs['val'], accs['test']))
 
 def test(model, dataloaders, args):
     model.eval()
@@ -125,17 +127,9 @@ def read_nx_graph():
     random.shuffle(edges)
     edge_index = torch.LongTensor(list(edges)).permute(1, 0)
     node_feature = []
-    node_feature_check_1 = None
-    node_feature_check_2 = None
     for i, node in enumerate(G.nodes(data=True)):
-        if i == 100:
-            node_feature_check_1 = node[1]['node_feature']
-        if i == 1000:
-            node_feature_check_2 = node[1]['node_feature']
         node_feature.append(node[1]['node_feature'])
     node_feature = torch.stack(node_feature, dim=0)
-    assert torch.all(node_feature_check_1 == node_feature[100]).item() == True
-    assert torch.all(node_feature_check_2 == node_feature[1000]).item() == True
     return G, edge_index, node_feature
 
 def split_edges(edge_index, num_edges, split_ratio=[0.85, 0.05, 0.1]):
