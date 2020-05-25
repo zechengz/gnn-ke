@@ -5,13 +5,14 @@ import random
 import argparse
 import numpy as np
 from sklearn.metrics import *
+from entity import *
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch_geometric.utils import negative_sampling
 import torch_geometric.transforms as T
 import torch_geometric.nn as pyg_nn
-
+import pickle as pkl
 import networkx as nx
 
 def arg_parse():
@@ -24,12 +25,18 @@ def arg_parse():
                         help='GAT and GraphSAGE etc.')
     parser.add_argument('--hidden_dim', type=int,
                         help='Hidden dimension of GNN.')
+    parser.add_argument('--entity', type=str,
+                        help='Whether use the entity.')
+    parser.add_argument('--num', type=int,
+                        help='Number to save the file.')
 
     parser.set_defaults(
             device='cuda:0',
             epochs=200,
             model='SAGE',
             hidden_dim=16,
+            entity='True',
+            num=0,
     )
     return parser.parse_args()
 
@@ -64,6 +71,8 @@ class Net(torch.nn.Module):
 def train(model, dataloaders, optimizer, args, scheduler=None):
     val_max = -math.inf
     best_model = model
+    val_accus, test_accus = [], []
+    val_rocs, test_rocs = [], []
     for epoch in range(1, args.epochs):
         model.train()
         optimizer.zero_grad()
@@ -86,6 +95,12 @@ def train(model, dataloaders, optimizer, args, scheduler=None):
 
         print(log1.format(epoch, loss.item(), rocs['train'], rocs['val'], rocs['test']))
         print(log2.format(epoch, loss.item(), accs['train'], accs['val'], accs['test']))
+
+        val_accus.append(accs['val'])
+        test_accus.append(accs['test'])
+        val_rocs.append(rocs['val'])
+        test_rocs.append(rocs['test'])
+
         if val_max < accs['val']:
             val_max = accs['val']
             best_model = copy.deepcopy(model)
@@ -95,6 +110,10 @@ def train(model, dataloaders, optimizer, args, scheduler=None):
     rocs, _, accs = test(best_model, dataloaders, args)
     print(log1.format(rocs['train'], rocs['val'], rocs['test']))
     print(log2.format(accs['train'], accs['val'], accs['test']))
+
+    with open('../figure/log/{}_{}_{}.pkl'.format(args.model, args.num, args.entity), 'wb') as f:
+        save = {'val_accu': val_accus, 'test_accu': test_accus, 'val_roc': val_rocs, 'test_roc': test_rocs}
+        pkl.dump(save, f)
 
 def test(model, dataloaders, args):
     model.eval()
@@ -178,10 +197,18 @@ def main():
     input_dim = node_feature.size(1)
     num_classes = 2
 
+    if args.entity == 'True':
+        repo = '../data/bern_entity/'
+        e = Entity(G, repo, alpha=0.7, beta=20)
+        adding_edges = e.edge_index
+
     dataloaders = {}
     dataloaders['train'] = {}
     dataloaders['train']['node_feature'] = node_feature.to(args.device)
-    dataloaders['train']['edge_index'] = edge_index.to(args.device)
+    if args.entity == 'True':
+        dataloaders['train']['edge_index'] = torch.cat((edge_index, adding_edges), dim=1).to(args.device)
+    else:
+        dataloaders['train']['edge_index'] = edge_index.to(args.device)
     dataloaders['train']['edge_label_index'] = edges_train_total.to(args.device)
     dataloaders['train']['link_label'] = train_labels.to(args.device)
     dataloaders['val'] = {}

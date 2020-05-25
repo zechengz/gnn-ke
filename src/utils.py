@@ -164,6 +164,7 @@ def transform_nx():
 		text = text.split(" ")
 		if 'abstract' in text[0] or 'background' in text[0]:
 			text = text[1:len(text)]
+		node[1]['abstract_raw'] =  node[1]['abstract']
 		node[1]['abstract'] = text
 
 	unique_word_dict = {}
@@ -186,6 +187,7 @@ def transform_nx():
 	res.add_nodes_from(H)
 	res.add_edges_from(H.edges)
 	feature_dict = {}
+	abstract_raw_dict = {}
 
 	feature_dim = len(unique_word_list)
 	print("Number of unique words:", feature_dim)
@@ -199,10 +201,13 @@ def transform_nx():
 				feature[pos] = 1
 		node[1]['node_feature'] = feature
 		feature_dict[node[0]] = {'node_feature': feature}
+		abstract_raw_dict[node[0]] = {'abstract_raw': node[1]['abstract_raw']}
 		if feature.sum() == 0:
 			count_zero += 1
 		# print(feature.sum())
 	nx.set_node_attributes(res, feature_dict)
+	nx.set_node_attributes(res, abstract_raw_dict)
+
 	
 	features = nx.get_node_attributes(res,'node_feature')
 	features_check = nx.get_node_attributes(H,'node_feature')
