@@ -29,6 +29,10 @@ def arg_parse():
                         help='Whether use the entity.')
     parser.add_argument('--num', type=int,
                         help='Number to save the file.')
+    parser.add_argument('--rand_num', type=int,
+                        help='Random number.')
+    parser.add_argument('--beta', type=int,
+                        help='Beta.')
 
     parser.set_defaults(
             device='cuda:0',
@@ -37,6 +41,8 @@ def arg_parse():
             hidden_dim=16,
             entity='True',
             num=0,
+            rand_num=100,
+            beta=10,
     )
     return parser.parse_args()
 
@@ -199,7 +205,7 @@ def main():
 
     if args.entity == 'True':
         repo = '../data/bern_entity/'
-        e = Entity(G, repo, alpha=0.7, beta=20)
+        e = Entity(G, repo, alpha=0.7, beta=args.beta, rand_num=args.rand_num)
         adding_edges = e.edge_index
 
     dataloaders = {}

@@ -7,17 +7,19 @@ from os import listdir
 from os.path import isfile, join
 
 class Entity(object):
-	def __init__(self, G, repo, alpha=0.7, beta=20):
+	def __init__(self, G, repo, alpha=0.7, beta=20, rand_num=100):
 		self.G = G
 		self.file_names = self.list_file_names(repo)
 		self.entities, self.objects = self.load_files(G, repo, self.file_names)
 		self.neighbors = self.hop_neighbors(G)
 		self.edges = self.similarity_generation(alpha, beta)
+		self.alpha = alpha
 		num_edges = 0
 		for edge in self.edges:
 			num_edges += len(self.edges[edge])
 		print("Adding {} edges.".format(num_edges * 2))
 		self.edge_index = self.generate_edge_index()
+		self.random_generation(rand_num)
 		assert self.edge_index.size(1) == num_edges * 2
 
 	def generate_edge_index(self):
@@ -47,6 +49,31 @@ class Entity(object):
 							else:
 								add_edges[i] = [neigh]
 		return add_edges
+
+	def random_generation(self, rand_num):
+		count = 0
+		num_nodes = self.G.number_of_nodes()
+		while count < rand_num:
+			node_s = torch.randint(low=0, high=num_nodes, size=()).item()
+			node_e = torch.randint(low=0, high=num_nodes, size=()).item()
+			if node_s == node_e:
+				continue
+			if node_s in self.edges and node_e in self.edges[node_s]:
+				continue
+			if node_e in self.edges and node_s in self.edges[node_e]:
+				continue
+			if node_s not in self.entities or node_e not in self.entities:
+				continue
+			s_entity = self.entities[node_s]
+			e_entity = self.entities[node_e]
+			score = self.similarity_compare(s_entity, e_entity)
+			if score > self.alpha:
+				print('Adding random')
+				if node_s in self.edges:
+					self.edges[node_s].append(node_e)
+				else:
+					self.edges[node_s] = [node_e]
+			count += 1
 
 	def similarity_compare(self, a, b):
 		if len(a) == 0 or len(b) == 0:

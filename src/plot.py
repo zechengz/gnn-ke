@@ -24,7 +24,7 @@ def plot(a, b, entity_min, entity_max, no_entity_min, no_entity_max):
 	fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
 	x = np.arange(1, 200, dtype=int)
 
-	ax1.plot(x, a, label='entity')
+	ax1.plot(x, a, label='LIKE')
 	ax1.plot(x, b, label='without')
 	ax1.set_xlabel('epochs')
 	ax1.set_ylabel('accuracy')
@@ -35,7 +35,7 @@ def plot(a, b, entity_min, entity_max, no_entity_min, no_entity_max):
 	
 	ax2.plot(x, entity_min, color='#1f77b4')
 	ax2.plot(x, entity_max, color='#1f77b4')
-	ax2.fill_between(x, entity_max, entity_min, alpha=0.2, label='entity')
+	ax2.fill_between(x, entity_max, entity_min, alpha=0.2, label='LIKE')
 	ax2.plot(x, no_entity_min, color='#ff7f0e')
 	ax2.plot(x, no_entity_max, color='#ff7f0e')
 	ax2.fill_between(x, no_entity_max, no_entity_min, alpha=0.2, label='without')
