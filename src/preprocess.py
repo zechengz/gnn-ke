@@ -9,4 +9,5 @@ if __name__ == "__main__":
 	# construct_edge_list()
 	# construct_nx_graph()
 	# clean_gpickle()
-	transform_nx()
+	# transform_nx()
+	generate_pickle_from_json()

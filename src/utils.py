@@ -4,6 +4,7 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 import torch
+import pickle as pkl
 
 from os import listdir
 from os.path import isfile, join
@@ -225,3 +226,28 @@ def transform_nx():
 	for node in res.nodes(data=True):
 		print(node)
 	nx.write_gpickle(res, "../data/reference_tensor.gpickle")
+
+def list_file_names(repo):
+	res = {}
+	for i, file in enumerate(listdir(repo)):
+		file_id = int(file[:-5])
+		if file_id >= 10533:
+			continue
+		if '.json' in file:
+			res[file_id] = file
+	return res
+
+def generate_pickle_from_json():
+	repo_path = '../data/bern_entity/'
+	id_dict = list_file_names(repo_path)
+	entities = {}
+	for file_id in id_dict:
+		fname = repo_path + str(file_id) + '.json'
+		with open(fname, 'r') as f:
+			data = json.load(f)
+			entities[file_id] = set()
+			for item in data:
+				entity = tuple(sorted(item['id']))
+				entities[file_id].add(entity)
+	with open('../data/bern.pkl', 'wb') as f:
+		pkl.dump(entities, f)
