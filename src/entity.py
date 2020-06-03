@@ -2,6 +2,7 @@ import json
 import torch
 import numpy as np
 import networkx as nx
+import pickle as pkl
 
 from os import listdir
 from os.path import isfile, join
@@ -9,8 +10,7 @@ from os.path import isfile, join
 class Entity(object):
 	def __init__(self, G, repo, alpha=0.7, beta=20, rand_num=100):
 		self.G = G
-		self.file_names = self.list_file_names(repo)
-		self.entities, self.objects = self.load_files(G, repo, self.file_names)
+		self.entities = self.load_files()
 		self.neighbors = self.hop_neighbors(G)
 		self.edges = self.similarity_generation(alpha, beta)
 		self.alpha = alpha
@@ -93,27 +93,6 @@ class Entity(object):
 			neighbors[node_id] = node_neighbors
 		return neighbors
 
-	def list_file_names(self, repo):
-		res = {}
-		for i, file in enumerate(listdir(repo)):
-			file_id = int(file[:-5])
-			if file_id >= 10533:
-				continue
-			if '.json' in file:
-				res[file_id] = file
-		return res
-
-	def load_files(self, G, repo, file_names):
-		entities = {}
-		objects = {}
-		for file_id in file_names:
-			fname = repo + str(file_id) + '.json'
-			abstract = G.nodes[file_id]['abstract_raw']
-			with open(fname, 'r') as f:
-				data = json.load(f)
-				entities[file_id] = set()
-				for item in data:
-					entity = tuple(sorted(item['id']))
-					entities[file_id].add(entity)
-					objects[entity] = item['obj']
-		return entities, objects	
+	def load_files(self):
+		with open('../data/bern.pkl', 'rb') as f:
+			return pkl.load(f)
