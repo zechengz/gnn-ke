@@ -1,6 +1,4 @@
 import copy
-import math
-import time
 import random
 import argparse
 import numpy as np
@@ -75,7 +73,7 @@ class Net(torch.nn.Module):
         return self.loss_fn(pred, link_label)
 
 def train(model, dataloaders, optimizer, args, scheduler=None):
-    val_max = -math.inf
+    val_max = -np.inf
     best_model = model
     val_accus, test_accus = [], []
     val_rocs, test_rocs = [], []

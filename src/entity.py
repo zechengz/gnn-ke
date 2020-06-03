@@ -17,10 +17,10 @@ class Entity(object):
 		num_edges = 0
 		for edge in self.edges:
 			num_edges += len(self.edges[edge])
-		print("Adding {} edges.".format(num_edges * 2))
+		random_edges = self.random_generation(rand_num)
+		print('Adding {} internal edges and {} random edges'.format(num_edges, random_edges))
 		self.edge_index = self.generate_edge_index()
-		self.random_generation(rand_num)
-		assert self.edge_index.size(1) == num_edges * 2
+		assert self.edge_index.size(1) == (num_edges + random_edges) * 2
 
 	def generate_edge_index(self):
 		edges = []
@@ -53,6 +53,7 @@ class Entity(object):
 	def random_generation(self, rand_num):
 		count = 0
 		num_nodes = self.G.number_of_nodes()
+		added = 0
 		while count < rand_num:
 			node_s = torch.randint(low=0, high=num_nodes, size=()).item()
 			node_e = torch.randint(low=0, high=num_nodes, size=()).item()
@@ -68,12 +69,13 @@ class Entity(object):
 			e_entity = self.entities[node_e]
 			score = self.similarity_compare(s_entity, e_entity)
 			if score > self.alpha:
-				print('Adding random')
 				if node_s in self.edges:
 					self.edges[node_s].append(node_e)
 				else:
 					self.edges[node_s] = [node_e]
+				added += 1
 			count += 1
+		return added
 
 	def similarity_compare(self, a, b):
 		if len(a) == 0 or len(b) == 0:

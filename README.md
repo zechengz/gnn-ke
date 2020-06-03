@@ -29,4 +29,3 @@ wget https://www.dropbox.com/s/chrj503ru9x406f/reference_tensor.gpickle
 cd src
 python link_pred.py --device=cpu
 ```
-
