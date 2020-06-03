@@ -8,8 +8,8 @@ import matplotlib as mpl
 
 plt.rcParams['axes.titlesize'] = 10
 
-model = 'GAT'
-# model = 'SAGE'
+# model = 'GAT'
+model = 'SAGE'
 path_template = '../figure/log/{}_{}_{}.pkl'
 
 entity = None
