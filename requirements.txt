@@ -2,4 +2,4 @@ networkx
 numpy
 pandas
 matplotlib
-
+torch
