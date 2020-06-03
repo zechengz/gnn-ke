@@ -8,7 +8,7 @@ from os import listdir
 from os.path import isfile, join
 
 class Entity(object):
-	def __init__(self, G, repo, alpha=0.7, beta=20, rand_num=100):
+	def __init__(self, G, alpha=0.7, beta=20, rand_num=100):
 		self.G = G
 		self.entities = self.load_files()
 		self.neighbors = self.hop_neighbors(G)

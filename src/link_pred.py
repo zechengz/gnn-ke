@@ -202,8 +202,14 @@ def main():
     num_classes = 2
 
     if args.entity == 'True':
-        repo = '../data/bern_entity/'
-        e = Entity(G, repo, alpha=0.7, beta=args.beta, rand_num=args.rand_num)
+        e = Entity(G, alpha=0.7, beta=args.beta, rand_num=args.rand_num)
+        H = copy.deepcopy(G)
+        for node1 in e.edges:
+            for node2 in e.edges[node1]:
+                H.add_edge(node1, node2)
+                H.add_edge(node2, node1)
+        print('Number of WCCs original is {}'.format(nx.number_weakly_connected_components(G)))
+        print('Number of WCCs updated is {}'.format(nx.number_weakly_connected_components(H)))
         adding_edges = e.edge_index
 
     dataloaders = {}
@@ -211,6 +217,7 @@ def main():
     dataloaders['train']['node_feature'] = node_feature.to(args.device)
     if args.entity == 'True':
         dataloaders['train']['edge_index'] = torch.cat((edge_index, adding_edges), dim=1).to(args.device)
+        print('Extra edges added')
     else:
         dataloaders['train']['edge_index'] = edge_index.to(args.device)
     dataloaders['train']['edge_label_index'] = edges_train_total.to(args.device)
