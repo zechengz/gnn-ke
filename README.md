@@ -1,4 +1,4 @@
-# CS230 Project
+## Link Prediction with Graph Neural Networks and Knowledge Extraction
 
 ### Installation
 
