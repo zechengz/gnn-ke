@@ -117,9 +117,9 @@ def train(model, dataloaders, optimizer, args, scheduler=None):
     print(log1.format(rocs['train'], rocs['val'], rocs['test']))
     print(log2.format(accs['train'], accs['val'], accs['test']))
 
-    with open('../figure/log/{}_{}_{}.pkl'.format(args.model, args.num, args.entity), 'wb') as f:
-        save = {'val_accu': val_accus, 'test_accu': test_accus, 'val_roc': val_rocs, 'test_roc': test_rocs}
-        pkl.dump(save, f)
+    # with open('../figure/log/{}_{}_{}.pkl'.format(args.model, args.num, args.entity), 'wb') as f:
+    #     save = {'val_accu': val_accus, 'test_accu': test_accus, 'val_roc': val_rocs, 'test_roc': test_rocs}
+    #     pkl.dump(save, f)
 
 def test(model, dataloaders, args):
     model.eval()
