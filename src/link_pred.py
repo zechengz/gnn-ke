@@ -203,25 +203,6 @@ def main():
 
     if args.entity == 'True':
         e = Entity(G, alpha=0.7, beta=args.beta, rand_num=args.rand_num)
-        # H = copy.deepcopy(G)
-        # for node1 in e.edges:
-        #     for node2 in e.edges[node1]:
-        #         H.add_edge(node1, node2)
-        #         H.add_edge(node2, node1)
-        # print('Number of WCCs original is {}'.format(nx.number_weakly_connected_components(G)))
-        # print('Number of WCCs updated is {}'.format(nx.number_weakly_connected_components(H)))
-        # Gc = G.subgraph(max(nx.weakly_connected_components(G), key=len))
-        # Hc = H.subgraph(max(nx.weakly_connected_components(G), key=len))
-        # print("Original {} edges, {} nodes".format(Gc.number_of_edges(), Gc.number_of_nodes()))
-        # G_degree = 0
-        # H_degree = 0
-        # for i in range(G.number_of_nodes()):
-        #     G_degree += G.degree[i]
-        # for i in range(G.number_of_nodes()):
-        #     H_degree += H.degree[i]
-        # print("Average degree: {}, {}".format(G_degree / G.number_of_nodes(), H_degree / G.number_of_nodes()))
-        # print("Wcc compare: {} edges, {} nodes".format(Hc.number_of_edges() - Gc.number_of_edges(), \
-        #     Hc.number_of_nodes() - Gc.number_of_nodes()))
         adding_edges = e.edge_index
 
     dataloaders = {}
