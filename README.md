@@ -8,7 +8,7 @@ pip install -r requirements.txt
 
 Maybe use `pip3` instead of `pip`.
 
-To manuall install the PyTorch Geometric, please refer to the [installation page](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html).
+To manually install the PyTorch Geometric, please refer to the [installation page](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html).
 
 ### Python Version
 
